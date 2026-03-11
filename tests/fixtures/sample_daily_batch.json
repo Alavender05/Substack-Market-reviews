@@ -1,0 +1,97 @@
+{
+  "schema_version": "1.0",
+  "run_id": "20260311T083000",
+  "run_date": "2026-03-11",
+  "source_profile": "https://yourname.substack.com",
+  "generated_at": "2026-03-11T08:35:41Z",
+  "article_count": 3,
+  "status": "completed_with_errors",
+  "articles": [
+    {
+      "article_id": "8d7f6c2ab14e90f1",
+      "source_profile": "https://yourname.substack.com",
+      "source_label": "My Substack Profile",
+      "article_url": "https://marketnotes.substack.com/p/fed-signals-patience",
+      "canonical_url": "https://marketnotes.substack.com/p/fed-signals-patience",
+      "title": "Fed Signals Patience as Markets Reprice",
+      "subtitle": "Investors reacted to softer yields and a slower path for rate cuts.",
+      "author": "Jane Smith",
+      "publication": "Macro Notes",
+      "published_at": "2026-03-10T12:00:00Z",
+      "body_text": "Body text",
+      "summary_short": "The article explains how a cautious Fed tone is affecting market pricing.",
+      "summary_bullets": [
+        "The Fed signaled a cautious policy stance.",
+        "Bond yields eased as expectations shifted.",
+        "Markets remain sensitive to future rate-cut timing."
+      ],
+      "key_takeaway": "Fed caution is still the main macro driver for market repricing.",
+      "topic_tags": [
+        "macro",
+        "rates",
+        "equities"
+      ],
+      "scraped_at": "2026-03-11T08:30:12Z",
+      "run_date": "2026-03-11",
+      "processing_status": "completed",
+      "summary_status": "completed",
+      "summary_model": "gpt-4.1-mini",
+      "content_hash": "abc123",
+      "error_message": null
+    },
+    {
+      "article_id": "partial123",
+      "source_profile": "https://yourname.substack.com",
+      "source_label": "My Substack Profile",
+      "article_url": "https://anotherpub.substack.com/p/weekly-wrap",
+      "canonical_url": "https://anotherpub.substack.com/p/weekly-wrap",
+      "title": "Weekly Wrap",
+      "subtitle": null,
+      "author": "Alex Doe",
+      "publication": null,
+      "published_at": null,
+      "body_text": "Body text",
+      "summary_short": "A partial article record with enough text to include in the digest.",
+      "summary_bullets": [
+        "The piece highlights the week's most important moves.",
+        "Some metadata was unavailable at scrape time."
+      ],
+      "key_takeaway": "Even partial records can still be useful in the daily digest.",
+      "topic_tags": [
+        "weekly",
+        "markets"
+      ],
+      "scraped_at": "2026-03-11T08:31:04Z",
+      "run_date": "2026-03-11",
+      "processing_status": "partial",
+      "summary_status": "fallback",
+      "summary_model": "gpt-4.1-mini",
+      "content_hash": "def456",
+      "error_message": null
+    },
+    {
+      "article_id": "failed123",
+      "source_profile": "https://yourname.substack.com",
+      "source_label": "My Substack Profile",
+      "article_url": "https://blockedpub.substack.com/p/unavailable",
+      "canonical_url": "https://blockedpub.substack.com/p/unavailable",
+      "title": "Unavailable Article",
+      "subtitle": null,
+      "author": null,
+      "publication": "Blocked Pub",
+      "published_at": null,
+      "body_text": "",
+      "summary_short": null,
+      "summary_bullets": [],
+      "key_takeaway": null,
+      "topic_tags": [],
+      "scraped_at": "2026-03-11T08:32:10Z",
+      "run_date": "2026-03-11",
+      "processing_status": "failed_extraction",
+      "summary_status": "not_started",
+      "summary_model": null,
+      "content_hash": null,
+      "error_message": "HTTP 403 while fetching article"
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "sources": [
+    {
+      "id": "primary_substack",
+      "type": "substack_profile",
+      "enabled": true,
+      "label": "My Substack Profile",
+      "profile_url": "https://yourname.substack.com",
+      "reads_path_hint": "/reads"
+    }
+  ]
+}
+
