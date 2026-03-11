@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.0",
+  "updated_at": "2026-03-11T10:27:00.930358+00:00",
+  "publications": {
+    "https://newsletter.doomberg.com/": {
+      "publication_id": "cf082083c3790b36",
+      "publication_name": "Doomberg",
+      "publication_url": "https://newsletter.doomberg.com/",
+      "rss_url": "https://newsletter.doomberg.com/feed",
+      "discovered_from_profile": "https://substack.com/@aleclavender",
+      "first_seen": "2026-03-11T10:21:43+00:00",
+      "last_seen_on_reads": "2026-03-11T10:21:43+00:00",
+      "last_checked": "2026-03-11T10:27:00+00:00",
+      "last_successful_check": null,
+      "monitor_status": "error",
+      "monitor_method": "rss",
+      "expiry_after_days": 30,
+      "is_active": true,
+      "error_message": "HTTPSConnectionPool(host='newsletter.doomberg.com', port=443): Max retries exceeded with url: / (Caused by NameResolutionError(\"<urllib3.connection.HTTPSConnection object at 0x7128d954c320>: Failed to resolve 'newsletter.doomberg.com' ([Errno -2] Name or service not known)\"))"
+    },
+    "https://www.hfir.com/": {
+      "publication_id": "b09429ceee1484c5",
+      "publication_name": "HFI Research",
+      "publication_url": "https://www.hfir.com/",
+      "rss_url": "https://www.hfir.com/feed",
+      "discovered_from_profile": "https://substack.com/@aleclavender",
+      "first_seen": "2026-03-11T10:25:07+00:00",
+      "last_seen_on_reads": "2026-03-11T10:25:07+00:00",
+      "last_checked": "2026-03-11T10:27:00+00:00",
+      "last_successful_check": null,
+      "monitor_status": "error",
+      "monitor_method": "rss",
+      "expiry_after_days": 30,
+      "is_active": true,
+      "error_message": "HTTPSConnectionPool(host='www.hfir.com', port=443): Max retries exceeded with url: / (Caused by NameResolutionError(\"<urllib3.connection.HTTPSConnection object at 0x7128d9507980>: Failed to resolve 'www.hfir.com' ([Errno -2] Name or service not known)\"))"
+    }
+  }
+}

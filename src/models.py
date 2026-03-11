@@ -12,6 +12,41 @@ class ReadItem:
     discovered_at: str
     title_hint: str | None = None
     source_label: str | None = None
+    discovered_via: str | None = None
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
+@dataclass
+class PublicationRecord:
+    publication_id: str
+    publication_name: str
+    publication_url: str
+    rss_url: str
+    discovered_from_profile: str
+    first_seen: str
+    last_seen_on_reads: str
+    last_checked: str | None = None
+    last_successful_check: str | None = None
+    monitor_status: str = "pending"
+    monitor_method: str = "rss"
+    expiry_after_days: int = 30
+    is_active: bool = True
+    error_message: str | None = None
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
+@dataclass
+class ReadsDiscoveryResult:
+    source_profile: str
+    reads_url: str
+    discovered_at: str
+    publications: list[PublicationRecord] = field(default_factory=list)
+    direct_articles: list[ReadItem] = field(default_factory=list)
+    debug_snapshot_path: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -81,6 +116,7 @@ class CanonicalArticleRecord:
     summary_model: str | None
     content_hash: str | None
     error_message: str | None
+    discovered_via: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)

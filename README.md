@@ -8,9 +8,11 @@ Every project change made in this Codespace must also be added to this `README.m
 This README is the project update directory and context history. When code, config, tests, structure, pipeline behavior, or setup steps change, add a dated note to the `Change Log` section before closing the task.
 
 ## What The Pipeline Does
-- Opens a public Substack profile and attempts to read the `Reads` activity feed
-- Extracts article links and basic source metadata
-- Fetches each article page and parses metadata plus article body text
+- Treats the public Substack profile for `@aleclavender` as an optional discovery source
+- Supports `live_reads`, `manual_seed`, and `registry_only` discovery modes
+- Uses `Reads` as a best-effort discovery layer for publications and any directly visible article links when available
+- Monitors discovered publications daily using RSS first with HTML fallback when needed
+- Fetches only newly discovered article pages and parses metadata plus article body text
 - Deduplicates against prior runs
 - Summarizes article text with an LLM API or a local fallback if no API key is configured
 - Writes raw, processed, and consumer-facing JSON outputs
@@ -55,6 +57,8 @@ tests/           Unit tests and fixtures
 ## Config Files
 - [`config/config.json`](/workspaces/Substack-Market-reviews/config/config.json): primary runtime settings
 - [`config/sources.json`](/workspaces/Substack-Market-reviews/config/sources.json): optional source registry for future expansion
+- [`config/publication_seeds.json`](/workspaces/Substack-Market-reviews/config/publication_seeds.json): optional bootstrap list for manually seeded publication monitoring
+- [`data/state/publications_registry.json`](/workspaces/Substack-Market-reviews/data/state/publications_registry.json): persistent publication monitoring registry with expiry and check metadata
 
 ## Running One Pipeline Job
 ```bash
@@ -66,9 +70,19 @@ Optional dry run:
 python -m src.main --dry-run
 ```
 
+Seed the publication registry manually:
+```bash
+python -m src.tools.import_publications config/publication_seeds.json
+```
+
+## Discovery Modes
+- `registry_only`: default production mode; skips live Reads scraping and monitors publications already stored in the registry
+- `manual_seed`: loads publications from [`config/publication_seeds.json`](/workspaces/Substack-Market-reviews/config/publication_seeds.json) and upserts them into the registry before monitoring
+- `live_reads`: attempts live Reads scraping, but challenge pages fail fast and fall back to the existing registry state for monitoring
+
 ## GitHub Actions Automation
 - Scheduled workflow: [`.github/workflows/daily-pipeline.yml`](/workspaces/Substack-Market-reviews/.github/workflows/daily-pipeline.yml)
-- Schedule: once per day at `07:15 UTC`
+- Schedule: once per day at `06:00 AEST` (`20:00 UTC` on the previous day in GitHub Actions cron)
 - Pipeline command in CI: `python -m src.main`
 - Playwright setup in CI: `python -m playwright install --with-deps chromium`
 - Required secret for LLM summaries: `OPENAI_API_KEY`
@@ -132,3 +146,20 @@ Tests use local fixtures and do not require live network access.
 - Added a standalone markdown digest module that renders the flat daily JSON article batch into a GitHub-friendly grouped markdown digest.
 - Added markdown digest tests and a sample daily batch fixture covering grouping, filtering, ordering, and file output.
 - Added a daily GitHub Actions workflow that installs Python, installs Playwright Chromium, runs the daily pipeline, uploads artifacts, and commits changed data files back to the repo only when tracked outputs changed.
+- Updated the GitHub Actions schedule to run daily at `06:00 AEST`, which is `20:00 UTC` on the previous day in GitHub Actions cron.
+- Refactored the pipeline so the public `Reads` page acts as the publication discovery layer instead of the only article source.
+- Added a persistent publication registry in [`data/state/publications_registry.json`](/workspaces/Substack-Market-reviews/data/state/publications_registry.json) with expiry and monitoring metadata.
+- Added RSS-first publication monitoring with HTML fallback for tracked publications, and merged monitored posts with any direct Reads article links before deduplication.
+- Added monitoring config fields for publication expiry, max publications checked per run, and max posts per publication.
+- Added tests and fixtures for publication discovery, publication registry updates/expiry, and RSS feed parsing.
+- Corrected the public Substack profile handle from `@alec.lavender` to `@aleclavender` across config, docs, and tests.
+- Updated the Reads scraper to fail fast on challenge/interstitial pages and load timeouts, saving a debug snapshot instead of hanging on `networkidle`.
+- Added compliant discovery modes so the pipeline can run without live Reads access: `registry_only` as the default, `manual_seed` for bootstrap imports, and `live_reads` as a best-effort option.
+- Added [`config/publication_seeds.json`](/workspaces/Substack-Market-reviews/config/publication_seeds.json) plus the import helper `python -m src.tools.import_publications` to populate the publication registry manually.
+- Updated the pipeline so daily monitoring can continue from the saved publication registry even when the Reads route is blocked by a challenge page.
+- Replaced the placeholder publication seed with Doomberg at [`config/publication_seeds.json`](/workspaces/Substack-Market-reviews/config/publication_seeds.json) and imported it into [`data/state/publications_registry.json`](/workspaces/Substack-Market-reviews/data/state/publications_registry.json).
+- Ran the pipeline in `registry_only` mode against the seeded Doomberg publication and confirmed that Reads scraping was skipped as intended.
+- Recorded the current live blocker for Doomberg from this environment: DNS resolution for `newsletter.doomberg.com` failed during RSS/homepage monitoring, so the run completed with zero articles and an error status stored on the publication registry entry.
+- Added HFI Research to [`config/publication_seeds.json`](/workspaces/Substack-Market-reviews/config/publication_seeds.json) using the provided tracked profile URL and imported it into [`data/state/publications_registry.json`](/workspaces/Substack-Market-reviews/data/state/publications_registry.json) as the normalized publication URL `https://www.hfir.com/`.
+- Ran the live pipeline again in `registry_only` mode with both Doomberg and HFI Research in the registry and confirmed the run completed cleanly with zero articles.
+- Recorded the current network blocker for both seeded publications from this environment: `newsletter.doomberg.com` and `www.hfir.com` both failed DNS resolution during RSS/homepage monitoring, so both registry entries now show `monitor_status: error` with the captured request exceptions.

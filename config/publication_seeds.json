@@ -1,0 +1,14 @@
+{
+  "publications": [
+    {
+      "publication_name": "Doomberg",
+      "publication_url": "https://newsletter.doomberg.com",
+      "rss_url": "https://newsletter.doomberg.com/feed"
+    },
+    {
+      "publication_name": "HFI Research",
+      "publication_url": "https://www.hfir.com/?utm_campaign=profile_chips",
+      "rss_url": "https://www.hfir.com/feed"
+    }
+  ]
+}

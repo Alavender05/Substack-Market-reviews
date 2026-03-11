@@ -4,12 +4,13 @@ import logging
 from pathlib import Path
 
 from .config_loader import AppConfig, SourcesConfig
-from .models import CanonicalArticleRecord, RunManifest
+from .models import CanonicalArticleRecord, ReadsDiscoveryResult, RunManifest
 from .outputs.digest_builder import build_daily_articles_batch, build_dashboard_feed, build_digest
 from .outputs.writers import OutputWriter
 from .processing.article_extractor import build_article_record
 from .processing.deduper import Deduper
 from .processing.normalizer import normalize_url
+from .processing.publication_registry import PublicationRegistry
 from .processing.serializer import (
     serialize_canonical_records,
     serialize_manifest,
@@ -19,6 +20,7 @@ from .processing.serializer import (
 from .scraping.article_fetcher import ArticleFetcher
 from .scraping.browser import browser_page
 from .scraping.html_parser import ArticleHtmlParser
+from .scraping.publication_monitor import PublicationMonitor
 from .scraping.substack_reads_scraper import SubstackReadsScraper
 from .summarization.summarizer import Summarizer
 from .utils.dates import now_utc_iso, run_date, run_id
@@ -32,6 +34,7 @@ class Pipeline:
         self.sources = sources
         self.logger = logger
         self.reads_scraper = SubstackReadsScraper(wait_until=config.fetching.browser_wait_until)
+        self.publication_monitor = PublicationMonitor(config)
         self.article_fetcher = ArticleFetcher(config)
         self.article_parser = ArticleHtmlParser()
         self.summarizer = Summarizer(config.summarization)
@@ -48,10 +51,35 @@ class Pipeline:
 
         seen_articles = read_json(self.config.deduplication.seen_articles_path, default={}) or {}
         deduper = Deduper(seen_articles=seen_articles)
+        publication_registry = PublicationRegistry(
+            self.config.monitoring.publications_registry_path,
+            expiry_after_days=self.config.monitoring.publication_expiry_days,
+        )
 
-        reads = self._collect_reads()
-        manifest.reads_discovered = len(reads)
-        write_json(Path("data/raw/reads") / f"{current_run_date}.json", serialize_reads(reads))
+        discovery = self._discover_publications(publication_registry)
+        manifest.reads_discovered = len(discovery.direct_articles)
+        write_json(Path("data/raw/reads") / f"{current_run_date}.json", discovery.to_dict())
+
+        for publication in discovery.publications:
+            publication_registry.upsert_from_reads(
+                publication_name=publication.publication_name,
+                publication_url=publication.publication_url,
+                discovered_from_profile=publication.discovered_from_profile,
+                seen_at=discovery.discovered_at,
+                rss_url=publication.rss_url,
+            )
+
+        monitored_articles = self._monitor_publications(publication_registry, discovery.discovered_at)
+        write_json(
+            Path("data/raw/publications") / f"{current_run_date}.json",
+            {
+                "run_date": current_run_date,
+                "discovered_publications": [item.to_dict() for item in discovery.publications],
+                "monitored_articles": serialize_reads(monitored_articles),
+            },
+        )
+
+        reads = self._merge_read_items(discovery.direct_articles, monitored_articles)
 
         read_candidates = [
             {
@@ -149,30 +177,80 @@ class Pipeline:
         manifest.finish("completed" if not manifest.errors else "completed_with_errors", now_utc_iso())
         if not dry_run:
             self._write_manifest_and_state(current_run_date, manifest, deduper)
+            publication_registry.save()
         return manifest.to_dict()
 
     def _collect_reads(self):
         if not self.config.profile.reads_enabled:
             self.logger.info("Reads scraping disabled in config.")
-            return []
+            return ReadsDiscoveryResult(
+                source_profile=str(self.config.profile.substack_profile_url),
+                reads_url=self.reads_scraper.build_reads_url(str(self.config.profile.substack_profile_url)),
+                discovered_at=now_utc_iso(),
+            )
 
         source_label = None
         if self.sources.sources:
             source_label = self.sources.sources[0].label
 
         with browser_page(user_agent=self.config.fetching.user_agent) as page:
-            reads = self.reads_scraper.scrape(
+            reads = self.reads_scraper.scrape_reads(
                 page,
                 str(self.config.profile.substack_profile_url),
                 source_label=source_label,
             )
-        if not reads and self.reads_scraper.last_debug_snapshot_path:
+        if not reads.direct_articles and not reads.publications and self.reads_scraper.last_debug_snapshot_path:
             self.logger.warning(
-                "No reads links found. Saved debug snapshot to %s",
+                "Reads discovery failed or returned no data. Saved debug snapshot to %s",
                 self.reads_scraper.last_debug_snapshot_path,
             )
-        self.logger.info("Discovered %s read links", len(reads))
+        self.logger.info(
+            "Discovered %s publications and %s direct article links from Reads",
+            len(reads.publications),
+            len(reads.direct_articles),
+        )
         return reads
+
+    def _discover_publications(self, publication_registry: PublicationRegistry) -> ReadsDiscoveryResult:
+        discovery_mode = self.config.monitoring.discovery_mode
+        if discovery_mode == "live_reads":
+            return self._collect_reads()
+        if discovery_mode == "manual_seed":
+            return self._load_manual_seed_discovery(publication_registry)
+        if discovery_mode == "registry_only":
+            self.logger.info("Discovery mode is registry_only. Skipping Reads scrape and using saved registry.")
+            return ReadsDiscoveryResult(
+                source_profile=str(self.config.profile.substack_profile_url),
+                reads_url=self.reads_scraper.build_reads_url(str(self.config.profile.substack_profile_url)),
+                discovered_at=now_utc_iso(),
+            )
+        raise ValueError(f"Unsupported discovery mode: {discovery_mode}")
+
+    def _load_manual_seed_discovery(self, publication_registry: PublicationRegistry) -> ReadsDiscoveryResult:
+        discovered_at = now_utc_iso()
+        source_profile = str(self.config.profile.substack_profile_url)
+        reads_url = self.reads_scraper.build_reads_url(source_profile)
+        seeds_payload = read_json(self.config.monitoring.publication_seeds_path, default={}) or {}
+        raw_publications = seeds_payload.get("publications", seeds_payload if isinstance(seeds_payload, list) else [])
+        if not isinstance(raw_publications, list):
+            raw_publications = []
+
+        publications = publication_registry.import_publications(
+            raw_publications,
+            discovered_from_profile=source_profile,
+            seen_at=discovered_at,
+        )
+        self.logger.info(
+            "Loaded %s seeded publications from %s",
+            len(publications),
+            self.config.monitoring.publication_seeds_path,
+        )
+        return ReadsDiscoveryResult(
+            source_profile=source_profile,
+            reads_url=reads_url,
+            discovered_at=discovered_at,
+            publications=publications,
+        )
 
     def _write_processed_outputs(
         self,
@@ -237,6 +315,7 @@ class Pipeline:
             summary_model=summary.model,
             content_hash=article.content_hash,
             error_message=None,
+            discovered_via=article.metadata.get("discovered_via"),
         )
 
     def _build_failed_canonical_record(self, read_item, source_profile: str, run_date: str, error_message: str) -> CanonicalArticleRecord:
@@ -264,4 +343,46 @@ class Pipeline:
             summary_model=None,
             content_hash=None,
             error_message=error_message,
+            discovered_via=read_item.discovered_via,
         )
+
+    def _monitor_publications(self, publication_registry: PublicationRegistry, checked_at: str):
+        items = []
+        publications = publication_registry.active_publications(checked_at)[
+            : self.config.monitoring.max_publications_per_run
+        ]
+        for publication in publications:
+            try:
+                posts, monitor_method = self.publication_monitor.fetch_recent_posts(publication)
+                publication_registry.mark_checked(
+                    publication.publication_url,
+                    checked_at=checked_at,
+                    success=True,
+                    monitor_method=monitor_method,
+                )
+                items.extend(posts)
+            except Exception as exc:
+                publication_registry.mark_checked(
+                    publication.publication_url,
+                    checked_at=checked_at,
+                    success=False,
+                    monitor_method="rss",
+                    error_message=str(exc),
+                )
+                self.logger.warning(
+                    "Failed monitoring publication %s: %s",
+                    publication.publication_url,
+                    exc,
+                )
+        return items
+
+    def _merge_read_items(self, direct_articles, monitored_articles):
+        merged = []
+        seen: set[str] = set()
+        for item in direct_articles + monitored_articles:
+            normalized_url = normalize_url(item.article_url)
+            if normalized_url in seen:
+                continue
+            seen.add(normalized_url)
+            merged.append(item)
+        return merged

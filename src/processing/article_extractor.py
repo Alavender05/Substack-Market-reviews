@@ -28,5 +28,8 @@ def build_article_record(read_item: ReadItem, parsed_article: dict[str, str | No
         content_hash=content_hash,
         fetch_status="fetched" if body_text else "partial",
         fetched_at=now_utc_iso(),
-        metadata={"source_label": read_item.source_label},
+        metadata={
+            "source_label": read_item.source_label,
+            "discovered_via": read_item.discovered_via,
+        },
     )

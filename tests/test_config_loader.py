@@ -3,9 +3,12 @@ from src.config_loader import load_config, load_sources
 
 def test_load_config_from_fixture():
     config = load_config("tests/fixtures/sample_config.json")
-    assert config.profile.substack_profile_url == "https://example.substack.com"
+    assert config.profile.substack_profile_url == "https://substack.com/@example"
     assert config.pipeline.article_fetch_limit_per_run == 5
     assert config.summarization.summary_length == "short"
+    assert config.monitoring.max_publications_per_run == 10
+    assert config.monitoring.discovery_mode == "registry_only"
+    assert config.monitoring.publication_seeds_path == "config/publication_seeds.json"
 
 
 def test_load_sources_default_file():

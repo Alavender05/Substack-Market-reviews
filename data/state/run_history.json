@@ -1,2 +1,28 @@
-[]
-
+[
+  {
+    "run_id": "20260311T102150",
+    "run_date": "2026-03-11",
+    "started_at": "2026-03-11T10:21:50+00:00",
+    "completed_at": "2026-03-11T10:21:50+00:00",
+    "status": "completed",
+    "dry_run": false,
+    "reads_discovered": 0,
+    "articles_selected": 0,
+    "articles_fetched": 0,
+    "summaries_created": 0,
+    "errors": []
+  },
+  {
+    "run_id": "20260311T102700",
+    "run_date": "2026-03-11",
+    "started_at": "2026-03-11T10:27:00+00:00",
+    "completed_at": "2026-03-11T10:27:00+00:00",
+    "status": "completed",
+    "dry_run": false,
+    "reads_discovered": 0,
+    "articles_selected": 0,
+    "articles_fetched": 0,
+    "summaries_created": 0,
+    "errors": []
+  }
+]

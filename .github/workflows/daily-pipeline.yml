@@ -2,7 +2,8 @@ name: Daily Substack Pipeline
 
 on:
   schedule:
-    - cron: "15 7 * * *"
+    # 06:00 AEST = 20:00 UTC on the previous day.
+    - cron: "0 20 * * *"
   workflow_dispatch:
 
 permissions:
@@ -71,4 +72,3 @@ jobs:
           git add data/ output/ logs/ README.md
           git commit -m "chore: update daily pipeline outputs"
           git push
-

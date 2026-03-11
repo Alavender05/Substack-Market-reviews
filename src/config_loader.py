@@ -148,6 +148,48 @@ class FetchingConfig:
 
 
 @dataclass
+class MonitoringConfig:
+    discovery_mode: str = "registry_only"
+    rss_enabled: bool = True
+    html_fallback_enabled: bool = True
+    publication_expiry_days: int = 30
+    max_posts_per_publication_per_run: int = 5
+    max_publications_per_run: int = 20
+    publications_registry_path: str = "data/state/publications_registry.json"
+    publication_seeds_path: str = "config/publication_seeds.json"
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "MonitoringConfig":
+        discovery_mode = str(data.get("discovery_mode", "registry_only"))
+        expiry = int(data.get("publication_expiry_days", 30))
+        max_posts = int(data.get("max_posts_per_publication_per_run", 5))
+        max_publications = int(data.get("max_publications_per_run", 20))
+        allowed_discovery_modes = {"live_reads", "manual_seed", "registry_only"}
+        if discovery_mode not in allowed_discovery_modes:
+            raise ValueError(
+                "monitoring.discovery_mode must be one of: live_reads, manual_seed, registry_only"
+            )
+        if expiry < 1:
+            raise ValueError("monitoring.publication_expiry_days must be >= 1")
+        if max_posts < 1:
+            raise ValueError("monitoring.max_posts_per_publication_per_run must be >= 1")
+        if max_publications < 1:
+            raise ValueError("monitoring.max_publications_per_run must be >= 1")
+        return cls(
+            discovery_mode=discovery_mode,
+            rss_enabled=bool(data.get("rss_enabled", True)),
+            html_fallback_enabled=bool(data.get("html_fallback_enabled", True)),
+            publication_expiry_days=expiry,
+            max_posts_per_publication_per_run=max_posts,
+            max_publications_per_run=max_publications,
+            publications_registry_path=str(
+                data.get("publications_registry_path", "data/state/publications_registry.json")
+            ),
+            publication_seeds_path=str(data.get("publication_seeds_path", "config/publication_seeds.json")),
+        )
+
+
+@dataclass
 class AppConfig:
     profile: ProfileConfig
     pipeline: PipelineConfig
@@ -156,6 +198,7 @@ class AppConfig:
     logging: LoggingConfig
     deduplication: DeduplicationConfig
     fetching: FetchingConfig
+    monitoring: MonitoringConfig
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "AppConfig":
@@ -167,6 +210,7 @@ class AppConfig:
             logging=LoggingConfig.from_dict(data.get("logging", {})),
             deduplication=DeduplicationConfig.from_dict(data.get("deduplication", {})),
             fetching=FetchingConfig.from_dict(data.get("fetching", {})),
+            monitoring=MonitoringConfig.from_dict(data.get("monitoring", {})),
         )
 
 
