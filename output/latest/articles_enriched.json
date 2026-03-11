@@ -1,10 +1,11 @@
 {
   "schema_version": "1.0",
-  "run_id": "20260311T104422",
+  "run_id": "2026-03-11T20:42:38Z",
   "run_date": "2026-03-11",
   "source_profile": "https://substack.com/@aleclavender",
-  "generated_at": "2026-03-11T10:44:22+00:00",
+  "generated_at": "2026-03-11T20:42:39+00:00",
   "article_count": 0,
-  "status": "completed",
-  "articles": []
+  "status": "degraded",
+  "articles": [],
+  "banner_message": "Current monitoring run degraded. Displaying last successful dataset."
 }

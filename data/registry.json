@@ -1,3 +1,31 @@
 {
-  "publications": []
+  "publications": [
+    {
+      "name": "Doomberg",
+      "url": "https://newsletter.doomberg.com/",
+      "monitor_status": "error",
+      "last_successful_check": null,
+      "last_attempted_check": "2026-03-11T10:44:22+00:00",
+      "last_error_type": null,
+      "last_error_message": null
+    },
+    {
+      "name": "HFI Research",
+      "url": "https://www.hfir.com/",
+      "monitor_status": "error",
+      "last_successful_check": null,
+      "last_attempted_check": "2026-03-11T10:44:22+00:00",
+      "last_error_type": null,
+      "last_error_message": null
+    },
+    {
+      "name": "Substack Reads",
+      "url": "https://substack.com/@aleclavender",
+      "monitor_status": "error",
+      "last_successful_check": null,
+      "last_attempted_check": "2026-03-11T20:42:38Z",
+      "last_error_type": "http_403",
+      "last_error_message": "HTTP 403"
+    }
+  ]
 }

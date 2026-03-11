@@ -1,6 +1,41 @@
 {
-  "run_id": null,
-  "dns_checks": [],
-  "http_checks": [],
-  "core_status": "pending"
+  "run_id": "2026-03-11T20:42:38Z",
+  "dns_checks": [
+    {
+      "host": "github.com",
+      "ok": true,
+      "ip": "140.82.112.3"
+    },
+    {
+      "host": "substack.com",
+      "ok": true,
+      "ip": "104.18.37.200"
+    },
+    {
+      "host": "newsletter.doomberg.com",
+      "ok": true,
+      "ip": "104.21.22.103"
+    },
+    {
+      "host": "www.hfir.com",
+      "ok": true,
+      "ip": "104.18.36.24"
+    }
+  ],
+  "http_checks": [
+    {
+      "url": "https://github.com",
+      "ok": true,
+      "status_code": 200,
+      "final_url": "https://github.com/"
+    },
+    {
+      "url": "https://substack.com",
+      "ok": false,
+      "status_code": 403,
+      "final_url": "https://substack.com/"
+    }
+  ],
+  "core_status": "degraded",
+  "failure_stage": "preflight_http"
 }
