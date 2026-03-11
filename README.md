@@ -59,6 +59,7 @@ tests/           Unit tests and fixtures
 - [`config/sources.json`](/workspaces/Substack-Market-reviews/config/sources.json): optional source registry for future expansion
 - [`config/publication_seeds.json`](/workspaces/Substack-Market-reviews/config/publication_seeds.json): optional bootstrap list for manually seeded publication monitoring
 - [`data/state/publications_registry.json`](/workspaces/Substack-Market-reviews/data/state/publications_registry.json): persistent publication monitoring registry with expiry and check metadata
+- `config.preflight`: DNS and HTTP connectivity checks that run before source monitoring starts
 
 ## Running One Pipeline Job
 ```bash
@@ -74,6 +75,23 @@ Seed the publication registry manually:
 ```bash
 python -m src.tools.import_publications config/publication_seeds.json
 ```
+
+Run DNS and HTTP connectivity checks:
+```bash
+python - <<'PY'
+from src.tools.network_checks import dns_check, http_check
+print(dns_check())
+print(http_check())
+PY
+```
+
+## Run Health Artifacts
+- [`data/latest_run_status.json`](/workspaces/Substack-Market-reviews/data/latest_run_status.json): latest run health summary with `healthy`, `degraded`, or `failed`
+- [`data/connectivity_report.json`](/workspaces/Substack-Market-reviews/data/connectivity_report.json): latest DNS and HTTP preflight results
+- [`data/latest_articles.json`](/workspaces/Substack-Market-reviews/data/latest_articles.json): most recent run dataset, even if empty or degraded
+- [`data/latest_successful_articles.json`](/workspaces/Substack-Market-reviews/data/latest_successful_articles.json): last trustworthy healthy dataset
+- [`data/registry.json`](/workspaces/Substack-Market-reviews/data/registry.json): consumer-facing source health snapshot
+- `data/run_history/`: per-run status snapshots written by the health wrapper
 
 ## Discovery Modes
 - `registry_only`: default production mode; skips live Reads scraping and monitors publications already stored in the registry
@@ -163,3 +181,10 @@ Tests use local fixtures and do not require live network access.
 - Added HFI Research to [`config/publication_seeds.json`](/workspaces/Substack-Market-reviews/config/publication_seeds.json) using the provided tracked profile URL and imported it into [`data/state/publications_registry.json`](/workspaces/Substack-Market-reviews/data/state/publications_registry.json) as the normalized publication URL `https://www.hfir.com/`.
 - Ran the live pipeline again in `registry_only` mode with both Doomberg and HFI Research in the registry and confirmed the run completed cleanly with zero articles.
 - Recorded the current network blocker for both seeded publications from this environment: `newsletter.doomberg.com` and `www.hfir.com` both failed DNS resolution during RSS/homepage monitoring, so both registry entries now show `monitor_status: error` with the captured request exceptions.
+- Added reusable network diagnostics in [`src/tools/network_checks.py`](/workspaces/Substack-Market-reviews/src/tools/network_checks.py) with `dns_check()` and `http_check()` helpers for verifying whether DNS resolution and outbound HTTP are working from the current environment.
+- Added a run-health wrapper with preflight DNS/HTTP checks, explicit `healthy`/`degraded`/`failed` run classification, and protected latest-output handling.
+- Added new orchestration modules for diagnostics, preflight, run-state tracking, status rules, and output guarding under [`src/`](/workspaces/Substack-Market-reviews/src).
+- Extended the config schema with a `preflight` section for required DNS hosts, HTTP URLs, and request headers.
+- Updated the main entrypoint so it always writes [`data/latest_run_status.json`](/workspaces/Substack-Market-reviews/data/latest_run_status.json) and [`data/connectivity_report.json`](/workspaces/Substack-Market-reviews/data/connectivity_report.json), and only promotes [`data/latest_successful_articles.json`](/workspaces/Substack-Market-reviews/data/latest_successful_articles.json) on healthy runs.
+- Added `data_freshness` tagging to latest article payloads and fallback display behavior so degraded empty runs can transparently show the last successful dataset in consumer-facing latest outputs.
+- Extended publication registry records with attempt/error metadata and added the derived health snapshot at [`data/registry.json`](/workspaces/Substack-Market-reviews/data/registry.json).

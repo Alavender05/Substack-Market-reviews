@@ -1,0 +1,15 @@
+{
+  "run_id": null,
+  "started_at": null,
+  "finished_at": null,
+  "run_status": "pending",
+  "failure_stage": null,
+  "completed": false,
+  "article_count": 0,
+  "source_checks_attempted": 0,
+  "source_checks_succeeded": 0,
+  "source_checks_failed": 0,
+  "preserved_last_successful_output": false,
+  "warnings": [],
+  "errors": []
+}

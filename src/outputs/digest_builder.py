@@ -29,15 +29,16 @@ def build_digest(canonical_records: list[CanonicalArticleRecord]) -> dict:
     for article in canonical_records:
         items.append(
             {
-                "article_id": article.article_id,
-                "title": article.title,
-                "canonical_url": article.canonical_url,
-                "publication": article.publication,
-                "published_at": article.published_at,
-                "summary_short": article.summary_short,
-                "summary_bullets": article.summary_bullets,
-                "key_takeaway": article.key_takeaway,
-                "processing_status": article.processing_status,
+                "article_id": _field(article, "article_id"),
+                "title": _field(article, "title"),
+                "canonical_url": _field(article, "canonical_url"),
+                "publication": _field(article, "publication"),
+                "published_at": _field(article, "published_at"),
+                "summary_short": _field(article, "summary_short"),
+                "summary_bullets": _field(article, "summary_bullets"),
+                "key_takeaway": _field(article, "key_takeaway"),
+                "processing_status": _field(article, "processing_status"),
+                "data_freshness": _field(article, "data_freshness"),
             }
         )
     return {
@@ -52,19 +53,26 @@ def build_dashboard_feed(canonical_records: list[CanonicalArticleRecord]) -> dic
     for article in canonical_records:
         items.append(
             {
-                "id": article.article_id,
-                "title": article.title,
-                "url": article.canonical_url,
-                "publication": article.publication,
-                "author": article.author,
-                "summary": article.summary_short,
-                "summary_status": article.summary_status,
-                "scraped_at": article.scraped_at,
-                "processing_status": article.processing_status,
-                "topic_tags": article.topic_tags,
+                "id": _field(article, "article_id"),
+                "title": _field(article, "title"),
+                "url": _field(article, "canonical_url"),
+                "publication": _field(article, "publication"),
+                "author": _field(article, "author"),
+                "summary": _field(article, "summary_short"),
+                "summary_status": _field(article, "summary_status"),
+                "scraped_at": _field(article, "scraped_at"),
+                "processing_status": _field(article, "processing_status"),
+                "topic_tags": _field(article, "topic_tags"),
+                "data_freshness": _field(article, "data_freshness"),
             }
         )
     return {
         "generated_at": now_utc_iso(),
         "items": items,
     }
+
+
+def _field(article, name: str):
+    if isinstance(article, dict):
+        return article.get(name)
+    return getattr(article, name, None)

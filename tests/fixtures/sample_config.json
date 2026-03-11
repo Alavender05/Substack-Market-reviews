@@ -42,6 +42,19 @@
     "max_retries": 2,
     "user_agent": "SubstackReadsCollector/0.1"
   },
+  "preflight": {
+    "dns_hosts": [
+      "github.com",
+      "substack.com"
+    ],
+    "http_urls": [
+      "https://github.com",
+      "https://substack.com"
+    ],
+    "headers": {
+      "User-Agent": "Mozilla/5.0"
+    }
+  },
   "monitoring": {
     "discovery_mode": "registry_only",
     "rss_enabled": true,

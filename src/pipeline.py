@@ -10,7 +10,7 @@ from .outputs.writers import OutputWriter
 from .processing.article_extractor import build_article_record
 from .processing.deduper import Deduper
 from .processing.normalizer import normalize_url
-from .processing.publication_registry import PublicationRegistry
+from .processing.publication_registry import PublicationRegistry, classify_error_type
 from .processing.serializer import (
     serialize_canonical_records,
     serialize_manifest,
@@ -69,7 +69,14 @@ class Pipeline:
                 rss_url=publication.rss_url,
             )
 
-        monitored_articles = self._monitor_publications(publication_registry, discovery.discovered_at)
+        monitored_result = self._monitor_publications(publication_registry, discovery.discovered_at)
+        if isinstance(monitored_result, tuple) and len(monitored_result) == 4:
+            monitored_articles, source_checks_attempted, source_checks_succeeded, source_checks_failed = monitored_result
+        else:
+            monitored_articles = monitored_result
+            source_checks_attempted = 0
+            source_checks_succeeded = 0
+            source_checks_failed = 0
         write_json(
             Path("data/raw/publications") / f"{current_run_date}.json",
             {
@@ -178,7 +185,23 @@ class Pipeline:
         if not dry_run:
             self._write_manifest_and_state(current_run_date, manifest, deduper)
             publication_registry.save()
-        return manifest.to_dict()
+        result = manifest.to_dict()
+        result.update(
+            {
+                "articles": daily_articles["articles"],
+                "daily_articles": daily_articles,
+                "digest": digest,
+                "dashboard_feed": dashboard_feed,
+                "source_checks_attempted": source_checks_attempted,
+                "source_checks_succeeded": source_checks_succeeded,
+                "source_checks_failed": source_checks_failed,
+                "discovery_blocked": bool(
+                    discovery.debug_snapshot_path and not discovery.publications and not discovery.direct_articles
+                ),
+                "internal_error": False,
+            }
+        )
+        return result
 
     def _collect_reads(self):
         if not self.config.profile.reads_enabled:
@@ -274,7 +297,6 @@ class Pipeline:
             merged_index[item["article_id"]] = item
         write_json(index_path, list(merged_index.values()))
 
-        self.output_writer.write_latest_outputs(daily_articles, digest, dashboard_feed)
         self.output_writer.write_archive_outputs(current_run_date, daily_articles, digest, dashboard_feed)
 
     def _write_manifest_and_state(self, current_run_date: str, manifest: RunManifest, deduper: Deduper) -> None:
@@ -348,10 +370,14 @@ class Pipeline:
 
     def _monitor_publications(self, publication_registry: PublicationRegistry, checked_at: str):
         items = []
+        attempted = 0
+        succeeded = 0
+        failed = 0
         publications = publication_registry.active_publications(checked_at)[
             : self.config.monitoring.max_publications_per_run
         ]
         for publication in publications:
+            attempted += 1
             try:
                 posts, monitor_method = self.publication_monitor.fetch_recent_posts(publication)
                 publication_registry.mark_checked(
@@ -361,6 +387,7 @@ class Pipeline:
                     monitor_method=monitor_method,
                 )
                 items.extend(posts)
+                succeeded += 1
             except Exception as exc:
                 publication_registry.mark_checked(
                     publication.publication_url,
@@ -368,13 +395,15 @@ class Pipeline:
                     success=False,
                     monitor_method="rss",
                     error_message=str(exc),
+                    error_type=classify_error_type(str(exc)),
                 )
                 self.logger.warning(
                     "Failed monitoring publication %s: %s",
                     publication.publication_url,
                     exc,
                 )
-        return items
+                failed += 1
+        return items, attempted, succeeded, failed
 
     def _merge_read_items(self, direct_articles, monitored_articles):
         merged = []

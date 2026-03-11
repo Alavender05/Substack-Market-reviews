@@ -45,11 +45,14 @@ class PublicationRegistry:
             first_seen=existing.get("first_seen", seen_at),
             last_seen_on_reads=seen_at,
             last_checked=existing.get("last_checked"),
+            last_attempted_check=existing.get("last_attempted_check"),
             last_successful_check=existing.get("last_successful_check"),
             monitor_status=existing.get("monitor_status", "pending"),
             monitor_method=existing.get("monitor_method", "rss"),
             expiry_after_days=existing.get("expiry_after_days", self.expiry_after_days),
             is_active=True,
+            last_error_type=existing.get("last_error_type"),
+            last_error_message=None,
             error_message=None,
         )
         self.state["publications"][normalized_url] = record.to_dict()
@@ -78,11 +81,14 @@ class PublicationRegistry:
             first_seen=existing.get("first_seen", seen_at),
             last_seen_on_reads=last_seen_on_reads,
             last_checked=existing.get("last_checked"),
+            last_attempted_check=existing.get("last_attempted_check"),
             last_successful_check=existing.get("last_successful_check"),
             monitor_status=existing.get("monitor_status", "pending"),
             monitor_method=existing.get("monitor_method", "rss"),
             expiry_after_days=existing.get("expiry_after_days", self.expiry_after_days),
             is_active=True,
+            last_error_type=existing.get("last_error_type"),
+            last_error_message=existing.get("last_error_message"),
             error_message=None,
         )
         self.state["publications"][normalized_url] = record.to_dict()
@@ -127,18 +133,42 @@ class PublicationRegistry:
         success: bool,
         monitor_method: str,
         error_message: str | None = None,
+        error_type: str | None = None,
     ) -> None:
         normalized_url = normalize_url(publication_url)
         record = self.state["publications"].get(normalized_url)
         if not record:
             return
         record["last_checked"] = checked_at
+        record["last_attempted_check"] = checked_at
         record["monitor_method"] = monitor_method
         record["monitor_status"] = "ok" if success else "error"
         record["error_message"] = error_message
+        record["last_error_type"] = None if success else error_type
+        record["last_error_message"] = None if success else error_message
         if success:
             record["last_successful_check"] = checked_at
             record["is_active"] = True
+            record["last_error_type"] = None
+            record["last_error_message"] = None
+
+    def build_health_snapshot(self, reads_source: dict | None = None) -> dict[str, Any]:
+        publications = []
+        for record in self.state["publications"].values():
+            publications.append(
+                {
+                    "name": record.get("publication_name"),
+                    "url": record.get("publication_url"),
+                    "monitor_status": record.get("monitor_status"),
+                    "last_successful_check": record.get("last_successful_check"),
+                    "last_attempted_check": record.get("last_attempted_check") or record.get("last_checked"),
+                    "last_error_type": record.get("last_error_type"),
+                    "last_error_message": record.get("last_error_message"),
+                }
+            )
+        if reads_source:
+            publications.append(reads_source)
+        return {"publications": publications}
 
     def save(self) -> None:
         self.state["updated_at"] = datetime.now(UTC).isoformat()
@@ -160,3 +190,20 @@ class PublicationRegistry:
 
 def _parse_datetime(value: str) -> datetime:
     return datetime.fromisoformat(value.replace("Z", "+00:00"))
+
+
+def classify_error_type(error_message: str | None) -> str | None:
+    if not error_message:
+        return None
+    lowered = error_message.lower()
+    if "failed to resolve" in lowered or "name resolution" in lowered:
+        return "dns_failure"
+    if "403" in lowered or "forbidden" in lowered:
+        return "http_403"
+    if "timeout" in lowered:
+        return "timeout"
+    if "parse" in lowered:
+        return "parse_failure"
+    if "http" in lowered or "httpsconnectionpool" in lowered or "max retries exceeded" in lowered:
+        return "http_failure"
+    return "unknown_error"

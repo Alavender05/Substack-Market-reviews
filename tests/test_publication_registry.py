@@ -25,6 +25,7 @@ def test_publication_registry_upsert_and_expiry(tmp_path):
     active = reloaded.active_publications("2026-03-05T00:00:00+00:00")
     assert len(active) == 1
     assert active[0].publication_name == "Macro Notes"
+    assert active[0].last_attempted_check == "2026-03-02T00:00:00+00:00"
 
     expired = reloaded.active_publications("2026-03-20T00:00:00+00:00")
     assert expired == []
@@ -53,3 +54,28 @@ def test_publication_registry_import_publications(tmp_path):
     assert imported[0].publication_url == "https://marketnotes.substack.com/"
     assert imported[0].last_seen_on_reads == "2026-03-11T00:00:00+00:00"
     assert imported[1].publication_name == "Risk Journal"
+
+
+def test_publication_registry_marks_error_type(tmp_path):
+    registry_path = tmp_path / "publications_registry.json"
+    registry = PublicationRegistry(str(registry_path), expiry_after_days=14)
+    registry.upsert_from_reads(
+        publication_name="Macro Notes",
+        publication_url="https://marketnotes.substack.com",
+        discovered_from_profile="https://substack.com/@aleclavender",
+        seen_at="2026-03-01T00:00:00+00:00",
+    )
+
+    registry.mark_checked(
+        "https://marketnotes.substack.com",
+        checked_at="2026-03-02T00:00:00+00:00",
+        success=False,
+        monitor_method="rss",
+        error_message="Failed to resolve host",
+        error_type="dns_failure",
+    )
+
+    active = registry.active_publications("2026-03-03T00:00:00+00:00")
+    assert active[0].monitor_status == "error"
+    assert active[0].last_error_type == "dns_failure"
+    assert active[0].last_error_message == "Failed to resolve host"

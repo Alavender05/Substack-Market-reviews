@@ -9,6 +9,7 @@ def test_load_config_from_fixture():
     assert config.monitoring.max_publications_per_run == 10
     assert config.monitoring.discovery_mode == "registry_only"
     assert config.monitoring.publication_seeds_path == "config/publication_seeds.json"
+    assert "substack.com" in config.preflight.dns_hosts
 
 
 def test_load_sources_default_file():

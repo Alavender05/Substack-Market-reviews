@@ -148,6 +148,30 @@ class FetchingConfig:
 
 
 @dataclass
+class PreflightConfig:
+    dns_hosts: list[str] = field(default_factory=lambda: ["github.com", "substack.com"])
+    http_urls: list[str] = field(default_factory=lambda: ["https://github.com", "https://substack.com"])
+    headers: dict[str, str] = field(default_factory=lambda: {"User-Agent": "Mozilla/5.0"})
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "PreflightConfig":
+        dns_hosts = data.get("dns_hosts", ["github.com", "substack.com"])
+        http_urls = data.get("http_urls", ["https://github.com", "https://substack.com"])
+        headers = data.get("headers", {"User-Agent": "Mozilla/5.0"})
+        if not isinstance(dns_hosts, list):
+            raise ValueError("preflight.dns_hosts must be a list")
+        if not isinstance(http_urls, list):
+            raise ValueError("preflight.http_urls must be a list")
+        if not isinstance(headers, dict):
+            raise ValueError("preflight.headers must be an object")
+        return cls(
+            dns_hosts=[str(item) for item in dns_hosts],
+            http_urls=[str(item) for item in http_urls],
+            headers={str(key): str(value) for key, value in headers.items()},
+        )
+
+
+@dataclass
 class MonitoringConfig:
     discovery_mode: str = "registry_only"
     rss_enabled: bool = True
@@ -198,6 +222,7 @@ class AppConfig:
     logging: LoggingConfig
     deduplication: DeduplicationConfig
     fetching: FetchingConfig
+    preflight: PreflightConfig
     monitoring: MonitoringConfig
 
     @classmethod
@@ -210,6 +235,7 @@ class AppConfig:
             logging=LoggingConfig.from_dict(data.get("logging", {})),
             deduplication=DeduplicationConfig.from_dict(data.get("deduplication", {})),
             fetching=FetchingConfig.from_dict(data.get("fetching", {})),
+            preflight=PreflightConfig.from_dict(data.get("preflight", {})),
             monitoring=MonitoringConfig.from_dict(data.get("monitoring", {})),
         )
 

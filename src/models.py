@@ -28,11 +28,14 @@ class PublicationRecord:
     first_seen: str
     last_seen_on_reads: str
     last_checked: str | None = None
+    last_attempted_check: str | None = None
     last_successful_check: str | None = None
     monitor_status: str = "pending"
     monitor_method: str = "rss"
     expiry_after_days: int = 30
     is_active: bool = True
+    last_error_type: str | None = None
+    last_error_message: str | None = None
     error_message: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
