@@ -1,15 +1,15 @@
 {
-  "run_id": "2026-04-04T20:42:40Z",
+  "run_id": "2026-04-05T20:44:11Z",
   "dns_checks": [
     {
       "host": "github.com",
       "ok": true,
-      "ip": "140.82.114.4"
+      "ip": "140.82.116.3"
     },
     {
       "host": "substack.com",
       "ok": true,
-      "ip": "104.18.37.200"
+      "ip": "172.64.150.56"
     },
     {
       "host": "newsletter.doomberg.com",
