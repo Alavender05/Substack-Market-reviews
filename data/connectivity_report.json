@@ -1,25 +1,25 @@
 {
-  "run_id": "2026-05-07T21:11:54Z",
+  "run_id": "2026-05-08T21:11:02Z",
   "dns_checks": [
     {
       "host": "github.com",
       "ok": true,
-      "ip": "140.82.112.4"
+      "ip": "140.82.114.4"
     },
     {
       "host": "substack.com",
       "ok": true,
-      "ip": "104.18.37.200"
+      "ip": "172.64.150.56"
     },
     {
       "host": "newsletter.doomberg.com",
       "ok": true,
-      "ip": "104.21.22.103"
+      "ip": "172.64.80.1"
     },
     {
       "host": "www.hfir.com",
       "ok": true,
-      "ip": "104.18.36.24"
+      "ip": "172.64.151.232"
     }
   ],
   "http_checks": [
