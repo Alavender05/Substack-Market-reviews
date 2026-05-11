@@ -1,5 +1,5 @@
 {
-  "run_id": "2026-05-10T20:58:26Z",
+  "run_id": "2026-05-11T21:24:36Z",
   "dns_checks": [
     {
       "host": "github.com",
@@ -9,17 +9,17 @@
     {
       "host": "substack.com",
       "ok": true,
-      "ip": "172.64.150.56"
+      "ip": "104.18.37.200"
     },
     {
       "host": "newsletter.doomberg.com",
       "ok": true,
-      "ip": "172.67.204.47"
+      "ip": "104.21.22.103"
     },
     {
       "host": "www.hfir.com",
       "ok": true,
-      "ip": "104.18.36.24"
+      "ip": "172.64.151.232"
     }
   ],
   "http_checks": [
