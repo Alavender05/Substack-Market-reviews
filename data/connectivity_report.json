@@ -1,10 +1,10 @@
 {
-  "run_id": "2026-05-22T21:18:29Z",
+  "run_id": "2026-05-23T21:03:29Z",
   "dns_checks": [
     {
       "host": "github.com",
       "ok": true,
-      "ip": "140.82.116.3"
+      "ip": "140.82.113.4"
     },
     {
       "host": "substack.com",
@@ -19,7 +19,7 @@
     {
       "host": "www.hfir.com",
       "ok": true,
-      "ip": "104.18.36.24"
+      "ip": "172.64.151.232"
     }
   ],
   "http_checks": [
