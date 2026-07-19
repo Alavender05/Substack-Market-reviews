@@ -23,7 +23,7 @@
       "url": "https://substack.com/@aleclavender",
       "monitor_status": "error",
       "last_successful_check": null,
-      "last_attempted_check": "2026-07-18T21:00:03Z",
+      "last_attempted_check": "2026-07-19T21:02:26Z",
       "last_error_type": "http_403",
       "last_error_message": "HTTP 403"
     }
