@@ -1,10 +1,10 @@
 {
-  "run_id": "2026-10-06T23:43:51Z",
+  "run_id": "2026-10-08T00:07:29Z",
   "dns_checks": [
     {
       "host": "github.com",
       "ok": true,
-      "ip": "140.82.112.4"
+      "ip": "140.82.113.3"
     },
     {
       "host": "substack.com",
