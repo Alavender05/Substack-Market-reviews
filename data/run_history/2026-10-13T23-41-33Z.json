@@ -1,0 +1,17 @@
+{
+  "run_id": "2026-10-13T23:41:33Z",
+  "started_at": "2026-10-13T23:41:33Z",
+  "finished_at": "2026-10-13T23:41:33Z",
+  "run_status": "degraded",
+  "failure_stage": "preflight_http",
+  "completed": true,
+  "article_count": 0,
+  "source_checks_attempted": 0,
+  "source_checks_succeeded": 0,
+  "source_checks_failed": 0,
+  "preserved_last_successful_output": true,
+  "warnings": [
+    "Preflight checks failed."
+  ],
+  "errors": []
+}
