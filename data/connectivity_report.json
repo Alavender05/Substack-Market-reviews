@@ -1,5 +1,5 @@
 {
-  "run_id": "2026-10-23T23:01:39Z",
+  "run_id": "2026-10-24T22:23:42Z",
   "dns_checks": [
     {
       "host": "github.com",
@@ -19,7 +19,7 @@
     {
       "host": "www.hfir.com",
       "ok": true,
-      "ip": "172.64.151.232"
+      "ip": "104.18.36.24"
     }
   ],
   "http_checks": [
