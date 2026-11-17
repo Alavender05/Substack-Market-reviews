@@ -1,7 +1,7 @@
 {
-  "run_id": "2026-11-15T23:54:26Z",
-  "started_at": "2026-11-15T23:54:26Z",
-  "finished_at": "2026-11-15T23:54:26Z",
+  "run_id": "2026-11-17T02:52:10Z",
+  "started_at": "2026-11-17T02:52:10Z",
+  "finished_at": "2026-11-17T02:52:11Z",
   "run_status": "degraded",
   "failure_stage": "preflight_http",
   "completed": true,
