@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "updated_at": "2026-03-11T10:44:22.974407+00:00",
+  "updated_at": "2026-11-18T02:22:16.277929+00:00",
   "publications": {
     "https://newsletter.doomberg.com/": {
       "publication_id": "cf082083c3790b36",
@@ -15,7 +15,7 @@
       "monitor_status": "error",
       "monitor_method": "rss",
       "expiry_after_days": 30,
-      "is_active": true,
+      "is_active": false,
       "error_message": "HTTPSConnectionPool(host='newsletter.doomberg.com', port=443): Max retries exceeded with url: / (Caused by NameResolutionError(\"<urllib3.connection.HTTPSConnection object at 0x770169a98bc0>: Failed to resolve 'newsletter.doomberg.com' ([Errno -2] Name or service not known)\"))"
     },
     "https://www.hfir.com/": {
@@ -31,7 +31,7 @@
       "monitor_status": "error",
       "monitor_method": "rss",
       "expiry_after_days": 30,
-      "is_active": true,
+      "is_active": false,
       "error_message": "HTTPSConnectionPool(host='www.hfir.com', port=443): Max retries exceeded with url: / (Caused by NameResolutionError(\"<urllib3.connection.HTTPSConnection object at 0x770169a98260>: Failed to resolve 'www.hfir.com' ([Errno -2] Name or service not known)\"))"
     }
   }

@@ -21,11 +21,11 @@
     {
       "name": "Substack Reads",
       "url": "https://substack.com/@aleclavender",
-      "monitor_status": "error",
-      "last_successful_check": null,
-      "last_attempted_check": "2026-11-17T02:52:10Z",
-      "last_error_type": "http_403",
-      "last_error_message": "HTTP 403"
+      "monitor_status": "ok",
+      "last_successful_check": "2026-11-18T02:22:16+00:00",
+      "last_attempted_check": "2026-11-18T02:22:15Z",
+      "last_error_type": null,
+      "last_error_message": null
     }
   ]
 }
