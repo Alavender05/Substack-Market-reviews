@@ -1,20 +1,20 @@
 {
-  "run_id": "2026-11-20T01:44:22Z",
+  "run_id": "2026-11-21T01:19:32Z",
   "dns_checks": [
     {
       "host": "github.com",
       "ok": true,
-      "ip": "140.82.113.4"
+      "ip": "140.82.114.4"
     },
     {
       "host": "substack.com",
       "ok": true,
-      "ip": "104.18.37.200"
+      "ip": "172.64.150.56"
     },
     {
       "host": "newsletter.doomberg.com",
       "ok": true,
-      "ip": "104.21.22.103"
+      "ip": "172.67.204.47"
     },
     {
       "host": "www.hfir.com",
@@ -31,11 +31,11 @@
     },
     {
       "url": "https://substack.com",
-      "ok": false,
-      "status_code": 403,
+      "ok": true,
+      "status_code": 200,
       "final_url": "https://substack.com/"
     }
   ],
-  "core_status": "degraded",
-  "failure_stage": "preflight_http"
+  "core_status": "ok",
+  "failure_stage": null
 }
