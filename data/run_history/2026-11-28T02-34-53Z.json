@@ -1,0 +1,17 @@
+{
+  "run_id": "2026-11-28T02:34:53Z",
+  "started_at": "2026-11-28T02:34:53Z",
+  "finished_at": "2026-11-28T02:34:54Z",
+  "run_status": "degraded",
+  "failure_stage": "discovery",
+  "completed": true,
+  "article_count": 0,
+  "source_checks_attempted": 0,
+  "source_checks_succeeded": 0,
+  "source_checks_failed": 0,
+  "preserved_last_successful_output": true,
+  "warnings": [
+    "No sources could be checked successfully."
+  ],
+  "errors": []
+}
